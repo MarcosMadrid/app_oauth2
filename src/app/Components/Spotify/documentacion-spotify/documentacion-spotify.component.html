@@ -1,0 +1,152 @@
+<div class="container align-items-center justify-content-center">
+  <div class="row container-fluid ">
+    <h1>Spotify API - Mini Documentación</h1>
+  </div>
+  <section class="row">
+    <h2>Introducción</h2>
+    <p>La API de Spotify proporciona acceso a una gran cantidad de datos relacionados con la música, incluyendo información sobre artistas, álbumes, pistas, listas de reproducción y más. Puedes utilizar la API para integrar funcionalidades de Spotify en tus aplicaciones y servicios.</p>
+    <p></p>
+    <span class="text-danger">
+      Se recomienda mirar la <a href="https://developer.spotify.com/documentation/web-api/tutorials/getting-started">documentación propia de Spotify</a> para obtener 'client_id' y 'client_secret', seguir los pasos hasta que se haya creado una App.
+    </span>
+    </section>
+
+  <section class="row">
+    <h2>Registro en Spotify Developer Dashboard</h2>
+    <ol>
+      <li><strong>Crea una cuenta:</strong> Si no tienes una cuenta de Spotify, <a href="https://developer.spotify.com/dashboard/" target="_blank">regístrate en Spotify Developer Dashboard</a>.</li>
+      <li><strong>Crea una aplicación:</strong> Después de iniciar sesión, crea una aplicación en el <a href="https://developer.spotify.com/dashboard/applications" target="_blank">dashboard</a>.</li>
+      <li><strong>Obtén credenciales:</strong> Una vez creada la aplicación, obtén el Client ID y Client Secret. Estos serán necesarios para autenticar tu aplicación con la API de Spotify.</li>
+    </ol>
+  </section>
+
+  <section class="row">
+    <h2>Autenticación</h2>
+    <p>Spotify utiliza el flujo de autorización de OAuth 2.0 para la autenticación. Hay dos tipos principales de autorización:</p>
+    <ul>
+      <li><strong>Autorización de Cliente (Client Credentials Flow):</strong> Para acceso de solo lectura a información pública. Requiere el <code>client_id</code> y <code>client_secret</code>.</li>
+      <li><strong>Autorización de Usuario (Authorization Code Flow):</strong> Para acceso a información del usuario y controlar Spotify en su nombre. Implica la autorización del usuario. Requiere el <code>client_id</code>, <code>client_secret</code>, <code>redirect_uri</code>, y la interacción con las interfaces de autorización de Spotify.</li>
+    </ul>
+  </section>
+
+    <section id="solicitud-autorizacion">
+    <h2>Solicitar Autorización del Usuario</h2>
+    <p>
+      Construye y envía una solicitud GET al endpoint <code>/authorize</code>.
+    </p>
+    <ul>
+      <li><strong>client_id:</strong> ID de cliente de tu aplicación.</li>
+      <li><strong>response_type:</strong> Configurado como "code."</li>
+      <li><strong>redirect_uri:</strong> URI para redirigir después de que el usuario otorgue o deniegue permisos.</li>
+      <li><strong>state:</strong> Opcional pero recomendado para protección contra ataques.</li>
+      <li><strong>scope:</strong> Opcional, lista de alcances separados por espacios.</li>
+      <li><strong>show_dialog:</strong> Opcional, para forzar al usuario a aprobar la aplicación nuevamente si es necesario.</li>
+    </ul>
+    <p>Ejemplo en TS Angular:</p>
+    <pre>
+      <code>
+        var redirect_uri = 'http://localhost:4200/spotify/oauth2';
+        var scope = [
+          'user-read-private',
+          'user-read-email',
+          'playlist-read-private', 
+          'playlist-read-collaborative'
+        ];
+    
+        var request = 'authorize?';
+        let params = new HttpParams();
+        params = params.append('response_type', 'code');
+        params = params.append('client_id', client_id);
+        params = params.append('scope', scope.join(' '));
+        params = params.append('redirect_uri', redirect_uri);
+        
+        return(https://accounts.spotify.com/authorize? + request + params);
+      </code>
+    </pre>
+    </section>
+    
+    <section id="respuesta">
+    <h2>Respuesta</h2>
+    <p>
+      Si el usuario acepta, se redirige de vuelta a la aplicación con un código de autorización.
+      El callback contiene en la URL:
+    </p>
+    <p><pre>
+      <code>
+        http://localhost:4200/spotify/oauth2?code="---"
+      </code>
+    </pre>
+    </section>
+    
+    <section id="solicitud-token-acceso">
+    <h2>Solicitar un Token de Acceso</h2>
+    <p>
+      Intercambia el código de autorización por un token de acceso enviando una solicitud POST a <code>/api/token</code>.
+    </p>
+    <ul>
+      <li><strong>grant_type:</strong> "authorization_code".</li>
+      <li><strong>code:</strong> Código de autorización.</li>
+      <li><strong>redirect_uri:</strong> Usado para validación.</li>
+    </ul>
+    <p>
+      Ejemplo en TS Angular:
+    </p>
+    <pre>
+      <code>
+        var redirect_uri = 'http://localhost:4200/spotify/oauth2';
+    
+        var body = new URLSearchParams();
+        body.set('code', auth);
+        body.set('grant_type', 'authorization_code');
+        body.set('redirect_uri', redirect_uri);
+    
+        let headers = new HttpHeaders();
+        headers = headers.append('content-type', 'application/x-www-form-urlencoded');
+        headers = headers.append('Authorization','Basic ' + btoa(client_id + ':' + client_secret) );
+    
+        return(new Promise((resolve)=>[
+          this.httpClient.post(https://accounts.spotify.com/api/token + request, body.toString() ,[headers, observe: 'response'])
+            .subscribe(response=>[]
+              resolve(response);
+            ]);
+        ]));
+      </code>
+    </pre>
+    </section>
+    
+    <section id="respuesta-token">
+    <h2>Respuesta del Token de Acceso</h2>
+    <p>
+      En caso de éxito, la respuesta tendrá un estado 200 OK y datos JSON con el token de acceso.
+    </p>
+    <ul>
+      <li><strong>access_token:</strong> Token de acceso para llamadas posteriores a la API de Spotify.</li>
+      <li><strong>token_type:</strong> Siempre "Bearer".</li>
+      <li><strong>scope:</strong> Lista de alcances otorgados.</li>
+      <li><strong>expires_in:</strong> Período de validez del token en segundos.</li>
+      <li><strong>refresh_token:</strong> Consulta la guía de renovación de tokens.</li>
+    </ul>
+    <pre>
+      <code>
+      'response':[
+        "headers": [
+          "normalizedNames": [],
+          "lazyUpdate": null
+        ],
+        "status": 200,
+        "statusText": "OK",
+        "url": "https://accounts.spotify.com/api/token",
+        "ok": true,
+        "type": 4,
+        "body": [
+          "access_token": "...access_token",
+          "token_type": "Bearer",
+          "expires_in": 3600,
+          "refresh_token": "...refresh_token",
+          "scope": "playlist-read-private playlist-read-collaborative user-read-email user-read-private"
+        ]
+      ]
+      </code>
+    </pre>
+    </section>
+</div>

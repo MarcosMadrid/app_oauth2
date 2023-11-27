@@ -1,0 +1,68 @@
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <form #FormOauth="ngForm" (submit)="Submit_IdClient(FormOauth.form)">
+          
+            <label for="client_id">Client ID:</label>
+            <input type="text" class="form-control" name="client_id" ngModel #Input_IdClient="ngModel"  placeholder="Client ID">
+
+            <label for="client_id">Client SECRET:</label>
+            <input type="text" class="form-control" name="client_secret" ngModel #Input_IdClient="ngModel"  placeholder="Client Secret">
+
+            <label for="scopes">Scopes</label>
+            <input type="text" class="form-control" name="scopes" default="user-read-private,user-read-email,playlist-read-private,playlist-read-collaborative" ngModel #Input_Scopes="ngModel">
+
+            <label for="params">Redirect Uri</label>
+            <input type="text" class="form-control" name="redirect_uri" placeholder="http://localhost:4200/spotify/oauth2" ngModel #Input_Params="ngModel">
+       
+          <button type="submit" class="btn btn-outline-success">Autorizar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+    <div id="terminal_auth" class="container-fluid mw-100 mt-2 col-11">
+      <div id="input" class="h-100 con">
+          <span id="prompt" class="text-danger">Este es un ejemplo de como quedaría el codigo, por seguridad del usuario y de Spotify se utilizan otros 'scopes'. </span>
+          <textarea type="text" id="cmd" class="container-fluid h-100" disabled>   
+          var redirect_uri = 'http://localhost:4200/spotify/oauth2';
+            var scope = [
+            {{FormOauth.value['scopes']}}
+            ];
+        
+            var request = 'authorize?';
+            let params = new HttpParams();
+            params = params.append('response_type', 'code');
+            params = params.append('client_id', {{FormOauth.value['client_id']}});
+            params = params.append('scope', {{FormOauth.value['scopes']}});
+            params = params.append('redirect_uri', {{FormOauth.value['redirect_uri']}});
+            
+            document.location.href = this._serviceSpotify.Get_Auth(urlSpotifyAPI_TOKEN + params);
+          </textarea>
+      </div>
+    </div>
+
+    <div id="terminal_token_user" class="container-fluid mw-100 mt-2 col-11">
+      <div id="input" class="h-100 con">
+          <span id="prompt" class="text-success">Este codigo se ejecuta al cargar de nuevo la pagina y dectectar que hay un parametro 'code' en la URL </span>
+          <textarea type="text" id="cmd" class="container-fluid h-100" disabled>   
+            var request : string = 'api/token';
+            var redirect_uri = 'http://localhost:4200/spotify/oauth2';
+        
+            var body = new URLSearchParams();
+            body.set('code', auth);
+            body.set('grant_type', 'authorization_code');
+            body.set('redirect_uri', redirect_uri);
+        
+            let headers = new HttpHeaders();
+            headers = headers.append('content-type', 'application/x-www-form-urlencoded');
+            headers = headers.append('Authorization','Basic ' + btoa({{FormOauth.value['client_id']}} + ':' + {{FormOauth.value['client_secret']}}) );
+        
+            return(new Promise((resolve)=>{
+              this.httpClient.post(environment.urlSpotifyAPI_TOKEN + request, body.toString() , {headers, observe: 'response'})
+                .subscribe(response=>{
+                  resolve(response);
+                });
+            }));
+          </textarea>
+      </div>
+    </div>

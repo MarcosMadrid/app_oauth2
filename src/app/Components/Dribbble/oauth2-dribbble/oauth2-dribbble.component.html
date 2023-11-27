@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <form #FormOauth="ngForm" (submit)="Submit_IdClient(FormOauth.form)">
+          
+            <label for="client_id">Client ID:</label>
+            <input type="text" class="form-control" name="client_id" ngModel #Input_IdClient="ngModel" placeholder="Client ID">
+
+            <label for="client_id">Client SECRET:</label>
+            <input type="text" class="form-control" name="client_secret" ngModel #Input_IdClient="ngModel"  placeholder="Client Secret">
+
+            <label for="scopes">Scopes</label>
+            <input type="text" class="form-control" name="scopes" default="user-read-private,user-read-email,playlist-read-private,playlist-read-collaborative" ngModel #Input_Scopes="ngModel">
+
+            <label for="params">Redirect Uri</label>
+            <input type="text" class="form-control" name="redirect_uri" placeholder="http://localhost:4200/spotify/oauth2" ngModel #Input_Params="ngModel">
+       
+          <button type="submit" class="btn btn-outline-success">Autorizar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+    <div id="terminal_auth" class="container-fluid mw-100 mt-2 col-11">
+      <div id="input" class="h-100 con">
+          <span id="prompt" class="text-danger">Este es un ejemplo de como quedaría el codigo, por seguridad del usuario se utilizan otros 'scopes'. </span>
+          <textarea type="text" id="cmd" class="container-fluid h-100" disabled>   
+            var request : string = '/oauth/authorize?';
+
+            let params = new HttpParams();
+            params = params.append('client_id', client_id);
+            
+            return(environment.urlDribbbleAPI_TOKEN + request + params);
+          </textarea>
+      </div>
+    </div>

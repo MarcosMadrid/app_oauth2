@@ -1,0 +1,31 @@
+<div class="container">
+  <ul class="nav nav-underline ms-2 col-6 float-start" (click)="Check_User()">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="doc" routerLinkActive="active">Documentacion</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="oauth2" routerLinkActive="active">Oauth2</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" routerLink="playlist" routerLinkActive="active">Playlist</a>
+      </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="search" routerLinkActive="active">Buscar Cancion</a>
+    </li>
+  </ul>
+  <div class="dropdown text-end float-end mt-1" *ngIf="user != null">
+    <div class="float-start me-2 mt-1">
+      {{user['id']}}
+    </div>
+    <a  class="d-block link-body-emphasis text-decoration-none float-start">
+      <img [src]="user['images'][0]['url']" alt="mdo" width="32" height="32" class="rounded-circle">
+    </a>
+  </div>
+</div>
+
+
+  <style>
+    img {
+      border-radius: 100%;
+      }
+  </style>

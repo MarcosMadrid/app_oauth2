@@ -1,0 +1,53 @@
+
+body {
+  background-color: #191414;
+  color: #fff;
+}
+
+.container {
+  margin-top: 50px;
+}
+
+form {
+  background-color: #990d99;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  color: #fff;
+}
+
+input {
+  background-color: #fff;
+  color: #000;
+}
+
+button {
+  margin-top: 15px;
+  background-color: #191414;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+#terminal_token_user,  #terminal_auth{
+   font-family: monospace;
+   background-color: #000;
+   color: #fff;
+   padding: 20px;
+   height: 600px;
+   border-radius: 7px;
+}
+#input {
+   margin-top: 20px;
+}
+#prompt {
+   font-weight: bold;
+}
+#cmd {
+   background: transparent;
+   border: none;
+   color: white;
+   outline: none;
+}

@@ -1,0 +1,121 @@
+
+<div class="container">
+    <div>
+        <h1>Comprendiendo OAuth2</h1>
+
+        <p>OAuth2, que significa "Open Authorization 2.0", es un marco de autorización ampliamente utilizado en el mundo de la seguridad informática y el desarrollo de aplicaciones. Su objetivo principal es facilitar y mejorar la seguridad en la interacción entre aplicaciones de terceros y servicios web.</p>
+    
+        <p>Imagina que eres el dueño de una aplicación web o servicio, y quieres permitir que otras aplicaciones (llamadas clientes) accedan a ciertos recursos en tu plataforma en nombre de sus usuarios. Aquí es donde entra en juego OAuth2. Este protocolo proporciona un método estandarizado y seguro para conceder permisos limitados sin compartir las credenciales de usuario.</p>
+    
+        <h3>Propósito Fundamental</h3>
+    
+        <p>El propósito fundamental de OAuth2 es permitir que una aplicación obtenga acceso a recursos protegidos en nombre de un usuario, pero sin revelar las credenciales del usuario a la aplicación. Esto es crucial para la seguridad y la privacidad en el mundo digital.</p>
+    
+        <p>En lugar de que el usuario comparta su nombre de usuario y contraseña con una aplicación de terceros, OAuth2 utiliza un proceso de autorización, donde el usuario otorga permisos a la aplicación para acceder a ciertos recursos en su nombre. Esto se logra mediante la emisión de tokens de acceso que representan la autorización concedida.</p>
+    
+        <h3>Actores Principales en OAuth2</h3>
+    
+        <p>En el proceso de OAuth2, hay varios datos clave:</p>
+    
+        <ul>
+            <li><strong>Cliente:</strong> La aplicación de terceros que solicita acceso a los recursos.</li>
+            <li><strong>Propietario del Recurso:</strong> El usuario que posee los recursos protegidos y concede acceso.</li>
+            <li><strong>Servidor de Autorización:</strong> El servidor que autentica al propietario del recurso y emite tokens de acceso.</li>
+            <li><strong>Servidor de Recursos:</strong> El servidor que almacena y gestiona los recursos protegidos.</li>
+        </ul>   
+    </div>
+    <div class="row">
+        <h2>Flujo de OAuth2</h2>
+        <div class="col-7 float-start">
+            <pre ><code>
+        +-------------------+                                          +---------------+
+        |                   |----------- Authorization Grant ---------&gt;|               |
+        |                   |&lt;---------- Authorization Code -----------|               |
+        |                   |                                          |               |
+        |                   |                                          |               |
+        |                   |-------------- Access Token -------------&gt;|               |
+        |                   |&lt;---------- Protected Resource -----------|               |
+        |      Client       |                                          |               |
+        |   (nuestra app)   |                                          |   External    |
+        |                   |-------------- Access Token -------------&gt;|     app       |
+        |                   |&lt;---------- Invalid Token Error ----------|               |
+        |                   |             (token a caducado)           |               |
+        |                   |                                          |               |
+        |                   |                                          |               |
+        |                   |------------- Refresh Token -------------&gt;|               |
+        |                   |&lt;----------- New Access Token ------------|               |
+        |                   |            &amp; Pedir otro Token            |               |
+        +-------------------+                                          +---------------+
+            </code>
+            </pre>
+        </div>
+        <div class="col-4 float-end">
+            <p>El flujo típico de OAuth2 involucra los siguientes pasos:</p>
+            <ol>
+                <li>El cliente solicita autorización al propietario del recurso.</li>
+                <li>El propietario del recurso autoriza la solicitud y proporciona un código de autorización.</li>
+                <li>El cliente intercambia el código de autorización por un token de acceso del servidor de autorización.</li>
+                <li>El cliente utiliza el token de acceso para acceder a los recursos protegidos alojados por el servidor de recursos.</li>
+            </ol>
+        </div>    
+    </div>
+    
+    
+    <div>
+        <h1>OAuth2: Flujo Paso a Paso</h1>
+
+        <p>El flujo típico de OAuth2 implica varios pasos desde la autorización hasta la obtención del token de acceso. Aquí te lo explico paso a paso:</p>
+    
+        <h2>Paso 1: Iniciar la Autorización</h2>
+    
+        <p>El cliente inicia el proceso redirigiendo al propietario del recurso (usuario) al servidor de autorización para obtener su consentimiento.</p>
+    
+        <pre>
+            <code>
+                const clientId = 'tu_id_de_cliente';
+                const redirectUri = 'tu_uri_de_redireccion';
+                const authorizationEndpoint = 'url_del_endpoint_de_autorizacion';
+                const scope = 'scopes_necesarios';
+    
+                function authorize() 
+                        const authorizationUrl = 'authorizationEndpoint'?client_id='clientId'&redirect_uri='redirectUri'scope='scope'&response_type=code;
+                        window.location.replace(authorizationUrl);
+            </code>
+        </pre>
+    
+        <h2>Paso 2: Usuario Otorga Autorización</h2>
+    
+        <p>Después de la redirección, el usuario otorga autorización y el servidor de autorización responde con un código de autorización.</p>
+    
+        <!-- Aquí en el mundo real, se captura el código de autorización después de la redirección -->
+    
+        <h2>Paso 3: Intercambio de Código por Token de Acceso</h2>
+    
+        <p>El cliente intercambia el código de autorización por un token de acceso solicitando al servidor de autorización.</p>
+    
+        <pre>
+            <code>
+            function GET_TOKEN(auth : string, client_id : string, client_secret : string, redirect_uri : string) : Promise[
+                var body = new URLSearchParams();
+                body.set('code', auth);
+                body.set('grant_type', 'authorization_code');
+                body.set('redirect_uri', redirect_uri);
+            
+                let headers = new HttpHeaders();
+                headers = headers.append('content-type', 'application/x-www-form-urlencoded');
+                headers = headers.append('Authorization','Basic ' + btoa(client_id + ':' + client_secret) );
+            
+                return(new Promise((resolve)=>[
+                  this.httpClient.post(urlAPI_TOKEN , body.toString() , [headers, observe: 'response'])
+                    .subscribe(response=>[
+                      resolve(response);
+                    ]);
+                ]));
+            ]
+            </code>
+        </pre>
+    
+        <p>Este código realiza una solicitud POST al endpoint de token con el código de autorización y otros parámetros necesarios.</p>
+    
+    </div>
+</div>

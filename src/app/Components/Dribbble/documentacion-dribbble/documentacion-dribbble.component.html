@@ -1,0 +1,156 @@
+
+<div class="container align-items-center justify-content-center">
+  <section>
+    <div class="row container-fluid ">
+      <h2>Resumen</h2>
+    </div>
+    <p>OAuth2 es un protocolo que permite a aplicaciones externas solicitar autorización para acceder a detalles privados en la cuenta de Dribbble de un usuario sin necesidad de contraseña. Se prefiere sobre la Autenticación Básica porque los tokens pueden limitarse a tipos específicos de datos y pueden ser revocados por los usuarios en cualquier momento.</p>
+    <p>Todos los desarrolladores necesitan registrar su aplicación antes de comenzar. Una aplicación OAuth registrada se le asigna un ID de cliente único y un secreto de cliente. El secreto del cliente no debe compartirse.</p>
+  </section>
+
+  <section>
+    <h2>Flujo de Aplicación Web</h2>
+    <p>El Flujo de Aplicación Web es un flujo de autorización específico de OAuth2 diseñado para aplicaciones web. Implica redirigir a los usuarios para solicitar acceso a Dribbble y manejar la respuesta de autorización.</p>
+
+    <div>
+      <strong>1. Redirigir usuarios para solicitar acceso a Dribbble.</strong>
+      <p>GET <span style="color: #4285f4;">https://dribbble.com/oauth/authorize</span></p>
+      <p><strong>Parámetros:</strong></p>
+      <ul>
+        <li><span style="color: #4285f4;">client_id</span> (cadena): Obligatorio. El ID de cliente que recibiste al registrarte.</li>
+        <li><span style="color: #4285f4;">redirect_uri</span> (cadena): La URL en tu aplicación a la que se enviará a los usuarios después de la autorización.</li>
+        <li><span style="color: #4285f4;">scope</span> (cadena): Una lista de ámbitos separados por espacio. Si no se proporciona, el ámbito se establece en el ámbito público por defecto para usuarios que no tienen un token válido.</li>
+        <li><span style="color: #4285f4;">state</span> (cadena): Una cadena aleatoria. Se utiliza para proteger contra ataques de falsificación de solicitudes entre sitios.</li>
+      </ul>
+    
+      <strong>2. Dribbble redirige de nuevo a tu sitio.</strong>
+      <p>Si el usuario acepta tu solicitud, Dribbble redirige de nuevo a tu sitio con un código temporal en un parámetro de código, así como el estado que proporcionaste en el paso anterior en un parámetro de estado. Si los estados no coinciden, la solicitud ha sido creada por un tercero y el proceso debe ser abortado.</p>
+    
+      <strong>Intercambiar esto por un token de acceso:</strong>
+      <p>POST <span style="color: #4285f4;">https://dribbble.com/oauth/token</span></p>
+      <p><strong>Parámetros:</strong></p>
+      <ul>
+        <li><span style="color: #4285f4;">client_id</span> (cadena): Obligatorio. El ID de cliente que recibiste al registrarte.</li>
+        <li><span style="color: #4285f4;">client_secret</span> (cadena): Obligatorio. El secreto de cliente que recibiste al registrarte.</li>
+        <li><span style="color: #4285f4;">code</span> (cadena): Obligatorio. El código que recibiste como respuesta al Paso 1.</li>
+        <li><span style="color: #4285f4;">redirect_uri</span> (cadena): La URL en tu aplicación a la que se enviará a los usuarios después de la autorización.</li>
+      </ul>
+    
+      <strong>Respuesta:</strong>
+      <pre>
+        <code>
+          [
+            "access_token" : "29ed478ab86c07f1c069b1af76088f7431396b7c4a2523d06911345da82224a0",
+            "token_type" : "bearer",
+            "scope" : "public upload"
+          ]
+        </code>
+      </pre>
+    
+      <strong>3. Usa el token de acceso para acceder a la API.</strong>
+      <p>El token de acceso te permite hacer solicitudes a la API en nombre de un usuario.</p>
+      <p>GET <span style="color: #4285f4;">https://api.dribbble.com/v2/user?access_token=...</span></p>
+      <p>Puedes pasar el token en los parámetros de la consulta como se muestra arriba, pero un enfoque más limpio es incluirlo en el encabezado de Autorización:</p>
+      <p><strong>Autorización: Portador ACCESS_TOKEN</strong></p>
+      <p>Por ejemplo, en curl puedes configurar el encabezado de Autorización así:</p>
+      <pre>
+        <code>
+          curl -H "Autorización: Portador ACCESS_TOKEN" <span style="color: #4285f4;">https://api.dribbble.com/v2/user</span>
+        </code>
+      </pre>
+    </div>
+    
+   
+  </section>
+
+  <section>
+    <h2>Flujo de Aplicación No Web</h2>
+    <p>Actualmente, no admitimos ningún otro método de autenticación además de OAuth.</p>
+  </section>
+
+  <section>
+    <h2>URLs de Redirección</h2>
+    <p>El parámetro redirect_uri es opcional. Si se omite, Dribbble redirigirá a los usuarios a la URL de devolución de llamada configurada en la configuración de la aplicación OAuth. Si se proporciona, el host y el puerto de la URL de redirección deben coincidir exactamente con la URL de devolución de llamada. La ruta de la URL de redirección debe hacer referencia a un subdirectorio de la URL de devolución de llamada.</p>
+
+    <pre>
+      <code>
+        CALLBACK: http://example.com/path
+
+        BIEN: http://example.com/path
+        BIEN: http://example.com/path/subdir/other
+        BIEN: myapplication://phone-callback
+        MAL:  http://example.com/
+        MAL:  http://example.com/bar
+        MAL:  http://example.com:8080/path
+        MAL:  http://oauth.example.com:8080/path
+        MAL:  http://example.org
+        MAL:  ssh://example.com
+      </code>
+    </pre>
+  </section>
+
+  <section>
+    <h2>Ámbitos</h2>
+    <p>Los ámbitos te permiten especificar exactamente qué tipo de acceso necesitas. Los ámbitos limitan el acceso para los tokens de OAuth. No otorgan ningún permiso adicional más allá de lo que el usuario ya tiene.</p>
+
+    <p>Para el flujo web, los ámbitos solicitados se mostrarán al usuario en el formulario de autorización.</p>
+
+    <pre>
+      <code>
+        Nombre    | Descripción
+        -----------------------------------------
+        public    | Otorga acceso de solo lectura a información pública. Este es el ámbito predeterminado si no se proporciona un ámbito.
+        upload    | Otorga acceso completo para crear, actualizar y eliminar shots y archivos adjuntos.
+
+        Tu aplicación puede solicitar los ámbitos en la redirección inicial. Puedes especificar varios ámbitos separándolos con un espacio:
+
+        https://dribbble.com/oauth/authorize?
+          client_id=...&
+          scope=public+upload
+      </code>
+    </pre>
+  </section>
+
+  <section>
+    <h2>Errores Comunes en la Solicitud de Autorización</h2>
+    <p>En la fase inicial de la solicitud de autorización de OAuth para un usuario, pueden ocurrir algunos errores. Aquí hay algunos errores que podrías ver:</p>
+
+    <ul>
+      <li>
+        <p><strong>Aplicación Suspendida</strong></p>
+        <p>Si la aplicación OAuth que configuraste ha sido suspendida (debido a informes de abuso, spam o mal uso de la API), Dribbble redirigirá a la URL de devolución de llamada registrada con los siguientes parámetros resumiendo el error:</p>
+        <pre>
+          <code>
+            http://tu-aplicacion.com/callback?error=application_suspended
+              &error_description=Tu+aplicación+ha+sido+suspendida.
+              &state=xyz
+          </code>
+        </pre>
+      </li>
+      <li>
+        <p><strong>Desajuste de URI de Redirección</strong></p>
+        <p>Si proporcionas un redirect_uri que no coincide con lo que has registrado con tu aplicación, Dribbble redirigirá a la URL de devolución de llamada registrada con los siguientes parámetros resumiendo el error:</p>
+        <pre>
+          <code>
+            http://tu-aplicacion.com/callback?error=invalid_redirect_uri
+              &error_description=La+URI+de+redirección+incluida+no+es+válida.
+              &state=xyz
+          </code>
+        </pre>
+        <p>Para corregir este error, proporciona un redirect_uri que coincida con lo que registraste o deja fuera este parámetro para usar el predeterminado registrado con tu aplicación.</p>
+      </li>
+      <li>
+        <p><strong>Acceso Denegado</strong></p>
+        <p>Si el usuario rechaza el acceso a tu aplicación, Dribbble redirigirá a la URL de devolución de llamada registrada con los siguientes parámetros resumiendo el error:</p>
+        <pre>
+          <code>
+            http://tu-aplicacion.com/callback?error=access_denied
+              &error_description=El+propietario+del+recurso+o+el+servidor+de+autorización+denegó+la+solicitud.
+              &state=xyz
+          </code>
+        </pre>
+        <p>No hay nada que puedas hacer aquí, ya que los usuarios son libres de elegir no usar tu aplicación. Con mayor frecuencia, los usuarios simplemente cerrarán la ventana o retrocederán en su navegador, por lo que es probable que nunca veas este error.</p>
+      </li>
+    </ul>
+  </section>
+</div>

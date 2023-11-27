@@ -1,0 +1,10 @@
+<app-menu-spotify [user]="user" (get_user)="Get_User()"></app-menu-spotify>
+<div>
+    <div  [ngClass]="show_response ? 'col-6 float-start' : 'container-fluid' ">
+        <router-outlet ></router-outlet>
+    </div>
+    <div [ngClass]="show_response ? 'col-6 float-end' : '' " [ngStyle]="{'display': !show_response ? 'none' : ''}">
+        <h1>Respuesta del API</h1>
+        <app-response-spotify (updateComponent)="updateComponent()" [response]="response"></app-response-spotify>
+    </div>
+</div>
